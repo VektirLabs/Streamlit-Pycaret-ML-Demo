@@ -1,0 +1,222 @@
+Index: app.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app.py b/app.py
+new file mode 100644
+--- /dev/null	(date 1644787873001)
++++ b/app.py	(date 1644787873001)
+@@ -0,0 +1,69 @@
++from pycaret.regression import load_model, predict_model
++import streamlit as st
++import pandas as pd
++import numpy as np
++
++# load saved ML pipeline
++model = load_model('model/deploy_tunedlr_02132022')
++
++# func to make predictions
++def predict(model, input_df):
++    predictions_df = predict_model(estimator=model, data=input_df)
++    predictions = predictions_df['Label'][0]
++    return predictions
++
++def run():
++
++    # get hospital images
++    from PIL import Image
++    image = Image.open('img/hospital.png')
++    image_hospital = Image.open('img/hospital.png')
++
++    # st.image(image,use_column_width=False)
++
++    # add select box to sidebar
++    add_selectbox = st.sidebar.selectbox(
++    "How would you like to predict?",
++    ("Online", "Batch"))
++
++    st.sidebar.info('This app is created to predict patient hospital charges')
++    st.sidebar.success('https://www.vektirlabs.com')
++
++    st.sidebar.image(image_hospital)
++
++    st.title("Insurance Charges Prediction App")
++
++    if add_selectbox == 'Online':
++
++        age = st.number_input('Age', min_value=1, max_value=100, value=25)
++        sex = st.selectbox('Sex', ['male', 'female'])
++        bmi = st.number_input('BMI', min_value=10, max_value=50, value=10)
++        children = st.selectbox('Children', [0,1,2,3,4,5,6,7,8,9,10])
++        if st.checkbox('Smoker'):
++            smoker = 'yes'
++        else:
++            smoker = 'no'
++        region = st.selectbox('Region', ['southwest', 'northwest', 'northeast', 'southeast'])
++
++        output=""
++
++        input_dict = {'age' : age, 'sex' : sex, 'bmi' : bmi, 'children' : children, 'smoker' : smoker, 'region' : region}
++        input_df = pd.DataFrame([input_dict])
++
++        if st.button("Predict"):
++            output = predict(model=model, input_df=input_df)
++            output = '$' + str(output)
++
++        st.success('The output is {}'.format(output))
++
++    if add_selectbox == 'Batch':
++
++        file_upload = st.file_uploader("Upload csv file for predictions", type=["csv"])
++
++        if file_upload is not None:
++            data = pd.read_csv(file_upload)
++            predictions = predict_model(estimator=model,data=data)
++            st.write(predictions)
++
++if __name__ == '__main__':
++    run()
+Index: requirements.txt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>aiohttp==3.8.1\naiosignal==1.2.0\nalembic==1.7.6\nanalytics-python==1.4.0\nansi2html==1.7.0\nanyio==3.5.0\nappnope==0.1.2\nargon2-cffi==21.3.0\nargon2-cffi-bindings==21.2.0\nasgiref==3.5.0\nasync-timeout==4.0.2\nasynctest==0.13.0\nattrs==21.4.0\nautopage==0.5.0\nautoviz==0.1.35\nazure-core==1.22.1\nazure-storage-blob==12.9.0\nbackcall==0.2.0\nbackoff==1.10.0\nbcrypt==3.2.0\nbleach==4.1.0\nblis==0.7.5\nbokeh==2.4.2\nBoruta==0.3\nboto3==1.20.54\nbotocore==1.23.54\nBrotli==1.0.9\ncachetools==5.0.0\ncatalogue==1.0.0\ncatboost==1.0.4\ncertifi==2021.10.8\ncffi==1.15.0\ncharset-normalizer==2.0.12\nchart-studio==1.1.0\nclick==8.0.3\ncliff==3.10.0\ncloudpickle==2.0.0\ncmaes==0.8.2\ncmd2==2.3.3\ncolorcet==3.0.0\ncolorlog==6.6.0\ncolorlover==0.3.0\ncolour==0.1.5\ncryptography==36.0.1\ncufflinks==0.17.3\ncycler==0.11.0\ncymem==2.0.6\ndash==2.1.0\ndash-auth==1.4.1\ndash-bootstrap-components==0.13.1\ndash-core-components==2.0.0\ndash-cytoscape==0.3.0\ndash-html-components==2.0.0\ndash-table==5.0.0\ndatabricks-cli==0.16.4\ndataclasses==0.6\ndebugpy==1.5.1\ndecorator==5.1.1\ndefusedxml==0.7.1\nDeprecated==1.2.13\ndill==0.3.4\ndocker==5.0.3\ndtreeviz==1.3.3\nemoji==1.6.3\nentrypoints==0.4\nevidently==0.1.43.dev1\nexplainerdashboard==0.3.8\nfairlearn==0.7.0\nfastapi==0.73.0\nffmpy==0.3.0\nfilelock==3.4.2\nFlask==2.0.2\nFlask-Compress==1.10.1\nFlask-SeaSurf==0.3.1\nflask-simplelogin==0.1.1\nFlask-WTF==0.15.1\nfonttools==4.29.1\nfrozenlist==1.3.0\nfsspec==0.8.3\nfuncy==1.17\nfuture==0.18.2\ngensim==3.8.3\ngevent==21.12.0\ngitdb==4.0.9\nGitPython==3.1.26\ngoogle-api-core==2.5.0\ngoogle-auth==2.6.0\ngoogle-cloud-core==2.2.2\ngoogle-cloud-storage==2.1.0\ngoogle-crc32c==1.3.0\ngoogle-resumable-media==2.2.1\ngoogleapis-common-protos==1.54.0\ngradio==2.7.5.2\ngraphviz==0.19.1\ngreenlet==1.1.2\ngrpcio==1.43.0\ngunicorn==20.1.0\nh11==0.13.0\nholoviews==1.14.6\nhtmlmin==0.1.12\nhvplot==0.7.3\nhyperopt==0.2.7\nidna==3.3\nImageHash==4.2.1\nimageio==2.15.0\nimbalanced-learn==0.7.0\nimportlib-metadata==4.11.0\nimportlib-resources==5.4.0\niniconfig==1.1.1\ninterpret==0.2.4\ninterpret-core==0.2.7\nipykernel==6.9.0\nipython==7.31.1\nipython-genutils==0.2.0\nipywidgets==7.6.5\nisodate==0.6.1\nitsdangerous==2.0.1\njedi==0.18.1\nJinja2==3.0.3\njmespath==0.10.0\njoblib==1.0.1\njsonschema==4.4.0\njupyter==1.0.0\njupyter-client==7.1.2\njupyter-console==6.4.0\njupyter-core==4.9.1\njupyter-dash==0.4.0\njupyterlab-pygments==0.1.2\njupyterlab-widgets==1.0.2\nkiwisolver==1.3.2\nkmodes==0.11.1\nlightgbm==3.3.2\nlime==0.2.0.1\nllvmlite==0.38.0\nm2cgen==0.9.0\nMako==1.1.6\nMarkdown==3.3.6\nmarkdown2==2.4.2\nMarkupSafe==2.0.1\nmatplotlib==3.5.1\nmatplotlib-inline==0.1.3\nmissingno==0.5.0\nmistune==0.8.4\nmlflow==1.23.1\nmlxtend==0.19.0\nmonotonic==1.6\nmsgpack==1.0.3\nmsrest==0.6.21\nmultidict==6.0.2\nmultimethod==1.7\nmultiprocess==0.70.12.2\nmurmurhash==1.0.6\nnbclient==0.5.10\nnbconvert==6.4.2\nnbformat==5.1.3\nnest-asyncio==1.5.4\nnetworkx==2.6.3\nnltk==3.7\nnotebook==6.4.8\nnumba==0.55.1\nnumexpr==2.8.1\nnumpy==1.19.5\noauthlib==3.2.0\noptuna==2.10.0\norjson==3.6.6\noyaml==1.0\npackaging==21.3\npandas==1.3.5\npandas-profiling==3.1.0\npandocfilters==1.5.0\npanel==0.12.6\nparam==1.12.0\nparamiko==2.9.2\nparso==0.8.3\npathos==0.2.8\npatsy==0.5.2\npbr==5.8.1\npexpect==4.8.0\nphik==0.12.0\npickleshare==0.7.5\nPillow==9.0.1\nplac==1.1.3\nplotly==5.6.0\npluggy==1.0.0\npox==0.3.0\nppft==1.6.6.4\npreshed==3.0.6\nprettytable==3.1.0\nprometheus-client==0.13.1\nprometheus-flask-exporter==0.18.7\nprompt-toolkit==3.0.28\nprotobuf==3.19.4\npsutil==5.9.0\nptyprocess==0.7.0\npy==1.11.0\npy4j==0.10.9.3\npyaml==21.10.1\npyasn1==0.4.8\npyasn1-modules==0.2.8\npycaret==2.3.6\npycparser==2.21\npycryptodome==3.14.1\npyct==0.4.8\npydantic==1.9.0\npydub==0.25.1\nPygments==2.11.2\npyLDAvis==3.2.2\nPyNaCl==1.5.0\npynndescent==0.5.6\npyod==0.9.7\npyparsing==3.0.7\npyperclip==1.8.2\npyrsistent==0.18.1\npytest==7.0.1\npython-dateutil==2.8.2\npython-multipart==0.0.5\npytz==2021.3\npyviz-comms==2.1.0\nPyWavelets==1.2.0\nPyYAML==5.4.1\npyzmq==22.3.0\nqtconsole==5.2.2\nQtPy==2.0.1\nquerystring-parser==1.2.4\nray==1.10.0\nredis==4.1.3\nregex==2022.1.18\nrequests==2.27.1\nrequests-oauthlib==1.3.1\nretrying==1.3.3\nrsa==4.8\ns3transfer==0.5.1\nSALib==1.4.5\nscikit-image==0.19.1\nscikit-learn==0.23.2\nscikit-optimize==0.9.0\nscikit-plot==0.3.7\nscipy==1.5.4\nseaborn==0.11.2\nSend2Trash==1.8.0\nshap==0.40.0\nsix==1.16.0\nskope-rules==1.0.1\nslicer==0.0.7\nsmart-open==5.2.1\nsmmap==5.0.0\nsniffio==1.2.0\nspacy==2.3.7\nSQLAlchemy==1.4.31\nsqlparse==0.4.2\nsrsly==1.0.5\nstarlette==0.17.1\nstatsmodels==0.13.2\nstevedore==3.5.0\ntabulate==0.8.9\ntangled-up-in-unicode==0.1.0\ntenacity==8.0.1\ntensorboardX==2.4.1\nterminado==0.13.1\ntestpath==0.5.0\ntextblob==0.17.1\nthinc==7.4.5\nthreadpoolctl==3.1.0\ntifffile==2021.11.2\ntomli==2.0.1\ntornado==6.1\ntqdm==4.62.3\ntraitlets==5.1.1\ntreeinterpreter==0.2.3\ntune-sklearn==0.4.1\ntyping-extensions==4.1.0\nua-parser==0.10.0\numap-learn==0.5.2\nurllib3==1.26.8\nuvicorn==0.17.4\nvisions==0.7.4\nwaitress==2.0.0\nwasabi==0.9.0\nwcwidth==0.2.5\nwebencodings==0.5.1\nwebsocket-client==1.2.3\nWerkzeug==2.0.3\nwidgetsnbextension==3.5.2\nwordcloud==1.8.1\nwrapt==1.13.3\nWTForms==3.0.1\nxgboost==1.5.2\nxlrd==2.0.1\nyarl==1.7.2\nyellowbrick==1.3.post1\nzipp==3.7.0\nzope.event==4.5.0\nzope.interface==5.4.0\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/requirements.txt b/requirements.txt
+--- a/requirements.txt	(revision 27be213bd9b9214d32560c079d9d683d108a4913)
++++ b/requirements.txt	(date 1644788353216)
+@@ -1,6 +1,7 @@
+ aiohttp==3.8.1
+ aiosignal==1.2.0
+ alembic==1.7.6
++altair==4.2.0
+ analytics-python==1.4.0
+ ansi2html==1.7.0
+ anyio==3.5.0
+@@ -8,6 +9,7 @@
+ argon2-cffi==21.3.0
+ argon2-cffi-bindings==21.2.0
+ asgiref==3.5.0
++astor==0.8.1
+ async-timeout==4.0.2
+ asynctest==0.13.0
+ attrs==21.4.0
+@@ -17,8 +19,11 @@
+ azure-storage-blob==12.9.0
+ backcall==0.2.0
+ backoff==1.10.0
++backports.zoneinfo==0.2.1
++base58==2.1.1
+ bcrypt==3.2.0
+ bleach==4.1.0
++blinker==1.4
+ blis==0.7.5
+ bokeh==2.4.2
+ Boruta==0.3
+@@ -195,6 +200,7 @@
+ py==1.11.0
+ py4j==0.10.9.3
+ pyaml==21.10.1
++pyarrow==7.0.0
+ pyasn1==0.4.8
+ pyasn1-modules==0.2.8
+ pycaret==2.3.6
+@@ -202,9 +208,11 @@
+ pycryptodome==3.14.1
+ pyct==0.4.8
+ pydantic==1.9.0
++pydeck==0.7.1
+ pydub==0.25.1
+ Pygments==2.11.2
+ pyLDAvis==3.2.2
++Pympler==1.0.1
+ PyNaCl==1.5.0
+ pynndescent==0.5.6
+ pyod==0.9.7
+@@ -215,6 +223,7 @@
+ python-dateutil==2.8.2
+ python-multipart==0.0.5
+ pytz==2021.3
++pytz-deprecation-shim==0.1.0.post0
+ pyviz-comms==2.1.0
+ PyWavelets==1.2.0
+ PyYAML==5.4.1
+@@ -252,6 +261,7 @@
+ starlette==0.17.1
+ statsmodels==0.13.2
+ stevedore==3.5.0
++streamlit==1.5.1
+ tabulate==0.8.9
+ tangled-up-in-unicode==0.1.0
+ tenacity==8.0.1
+@@ -262,17 +272,22 @@
+ thinc==7.4.5
+ threadpoolctl==3.1.0
+ tifffile==2021.11.2
++toml==0.10.2
+ tomli==2.0.1
++toolz==0.11.2
+ tornado==6.1
+ tqdm==4.62.3
+ traitlets==5.1.1
+ treeinterpreter==0.2.3
+ tune-sklearn==0.4.1
+ typing-extensions==4.1.0
++tzdata==2021.5
++tzlocal==4.1
+ ua-parser==0.10.0
+ umap-learn==0.5.2
+ urllib3==1.26.8
+ uvicorn==0.17.4
++validators==0.18.2
+ visions==0.7.4
+ waitress==2.0.0
+ wasabi==0.9.0
+Index: Dockerfile
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/Dockerfile b/Dockerfile
+new file mode 100644
+--- /dev/null	(date 1644788271961)
++++ b/Dockerfile	(date 1644788271961)
+@@ -0,0 +1,35 @@
++FROM python:3.7
++
++RUN pip install virtualenv
++ENV VIRTUAL_ENV=/venv
++RUN virtualenv venv -p python3
++ENV PATH="VIRTUAL_ENV/bin:$PATH"
++
++WORKDIR /app
++ADD . /app
++
++# Install dependencies
++RUN pip install -r requirements.txt
++
++# copying all files over
++COPY . /app
++
++# Expose port
++ENV PORT 8501
++
++# cmd to launch app when container is run
++CMD streamlit run app.py
++
++# streamlit-specific commands for config
++ENV LC_ALL=C.UTF-8
++ENV LANG=C.UTF-8
++RUN mkdir -p /root/.streamlit
++RUN bash -c 'echo -e "\
++[general]\n\
++email = \"\"\n\
++" > /root/.streamlit/credentials.toml'
++
++RUN bash -c 'echo -e "\
++[server]\n\
++enableCORS = false\n\
++" > /root/.streamlit/config.toml'
+\ No newline at end of file
